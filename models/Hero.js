@@ -11,7 +11,7 @@ const heroSchema = Schema({
         required: [true, 'Write Heros real name, but only here'],
     },
     superpowers: {
-        type: [String],
+        type: String,
         required: true,
     },
     catchPhrase: {
@@ -28,7 +28,7 @@ const heroSchema = Schema({
 const joiSchema = Joi.object({
     nickname: Joi.string().required(),
     realName: Joi.string().required(),
-    superpowers: Joi.array().items(Joi.string()),
+    superpowers: Joi.string(),
     catchPhrase: Joi.string().required(),
     images: Joi.array().items(Joi.string()),
 })

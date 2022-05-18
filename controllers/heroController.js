@@ -6,27 +6,36 @@ const { cloudinary } = require('../utils/cloudinary');
 class HeroController {
     async create(req, res, next) {
         try {
-            // const { nickname, realName, superpowers, chatchPhrase, images}=req.body
+            const { nickname, realName, superpowers, catchPhrase } = req.body
+            
+            
+            const files = req.files.img
+            const images=files.map(async (img) => {
+                const fileName = uuid.v4() + '.jpg'
+                const filePath = path.resolve(__dirname, '..', "static", fileName)
+                img.mv(filePath)
+                try {
+                    const uploadResponse = await cloudinary.uploader.upload(filePath, {
+                        upload_preset: 'ml_default',
+                    });
+                    const image = await uploadResponse.url.toString()
+                    return image
+                } catch (error) {
+                    console.log(error);
+                }
 
-            // const fileName = uuid.v4() + '.jpg'
-            // const filePath = path.resolve(__dirname, '..', "static", fileName)
-            // const uploadResponse = await cloudinary.uploader.upload(filePath, {
-            //     upload_preset: 'ml_default',
-            // });
-            // const images = uploadResponse.url
-            // console.log(images);
+            })
+            
 
-            const hero = await Hero.create(req.body)
+            const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images})
+           
             res.status(201).json({
                 status: 'success',
                 code: 201,
                 data: { hero }
             })
-            return res.json(hero)
         } catch (error) {
             console.log(error.message);
-        } finally {
-            next()
         }
     }
 
