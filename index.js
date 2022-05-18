@@ -2,11 +2,13 @@ require('dotenv').config()
 const express = require('express')
 const fileUpload = require('express-fileupload')
 const cors = require('cors')
-const router = require('./routes')
+const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const router = require('./routes')
 dotenv.config()
 
 const PORT = process.env.PORT || 4999
+const uriDb = process.env.DB_HOST
 
 const app = express()
 app.use(
@@ -23,12 +25,17 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(fileUpload({}))
 app.use('/api', router)
 
-const start = async () => {
-    try {
-        app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
-    } catch (error) {
-        console.log(error.message)
-    }
-}
+const connection = mongoose.connect(uriDb, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
 
-start()
+connection
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running, DB is connected. Use our API on port: ${PORT}`)
+        })
+    })
+    .catch((err) =>
+        console.log(`Server not running. Error message: ${err.message}`),
+    )
