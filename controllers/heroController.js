@@ -9,20 +9,22 @@ class HeroController {
             const { nickname, realName, superpowers, catchPhrase } = req.body
 
 
-            const files = req.files.img
-            const promises = files.map(async (img) => {
-                const fileName = `${uuid.v4()}.jpg`
-                const filePath = path.resolve(__dirname, '..', "static", fileName)
-                img.mv(filePath)
+            const files = req.files?.img
+            let images = []
+            if (files !== undefined) {
+                const promises = files.map(async (img) => {
+                    const fileName = `${uuid.v4()}.jpg`
+                    const filePath = path.resolve(__dirname, '..', "static", fileName)
+                    img.mv(filePath)
 
-                const uploadResponse = await cloudinary.uploader.upload(filePath, {
-                    upload_preset: 'ml_default',
-                });
-                img.delete(filePath)
-                const image = uploadResponse.url
-                return image
-            })
-            const images = await Promise.all(promises)
+                    const uploadResponse = await cloudinary.uploader.upload(filePath, {
+                        upload_preset: 'ml_default',
+                    });
+                    const image = uploadResponse.url
+                    return image
+                })
+                images = await Promise.all(promises)
+            }
             const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images })
 
             res.status(201).json({
