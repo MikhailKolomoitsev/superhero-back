@@ -4,8 +4,8 @@ const fileUpload = require('express-fileupload')
 const cors = require('cors')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-const router = require('./routes')
 const path = require('path')
+const router = require('./routes')
 
 dotenv.config()
 

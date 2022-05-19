@@ -11,20 +11,20 @@ class HeroController {
 
             const files = req.files?.img
             let images = []
-            if (files !== undefined && files.length > 0)  {
-                const promises = files.map(async (img) => {
-                    const fileName = `${uuid.v4()}.jpg`
-                    const filePath = path.resolve(__dirname, '..', "static", fileName)
-                    img.mv(filePath)
+            // if (files !== undefined && files.length > 0) {
+            //     const promises = files.map(async (img) => {
+            //         console.log(img);
+            //         const fileName = `${uuid.v4()}.jpg`
+            //         const filePath = path.resolve(__dirname, '..', "static", fileName)
+            //         img.mv(filePath)
 
-                    const uploadResponse = await cloudinary.uploader.upload(filePath, {
-                        upload_preset: 'ml_default',
-                    });
-                    const image = uploadResponse.url
-                    return image
-                })
-                images = await Promise.all(promises)
-            }else if (files !== undefined && files) {
+            //         const uploadResponse = await cloudinary.uploader.upload(filePath, {
+            //             upload_preset: 'ml_default',
+            //         });
+            //         return uploadResponse.url
+            //     })
+            //     images = await Promise.all(promises)
+            // } else if (files !== undefined && files) {
                 const fileName = `${uuid.v4()}.jpg`
                 const filePath = path.resolve(__dirname, '..', "static", fileName)
                 files.mv(filePath)
@@ -32,9 +32,8 @@ class HeroController {
                 const uploadResponse = await cloudinary.uploader.upload(filePath, {
                     upload_preset: 'ml_default',
                 });
-                const image = uploadResponse.url
-                images.push(image) 
-            }
+                images.push(uploadResponse.url)
+            // }
             const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images })
 
             res.status(201).json({
