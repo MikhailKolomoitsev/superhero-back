@@ -30,7 +30,7 @@ const joiSchema = Joi.object({
     realName: Joi.string().required(),
     superpowers: Joi.string(),
     catchPhrase: Joi.string().required(),
-    images: Joi.array().min(1).max(5).items(Joi.string()),
+    images: Joi.array().items(Joi.string()),
 })
 
 const Hero = model('Hero', heroSchema)

@@ -11,7 +11,7 @@ class HeroController {
 
             const files = req.files?.img
             let images = []
-            if (files !== undefined) {
+            if (files !== undefined && files.length > 0)  {
                 const promises = files.map(async (img) => {
                     const fileName = `${uuid.v4()}.jpg`
                     const filePath = path.resolve(__dirname, '..', "static", fileName)
@@ -24,6 +24,16 @@ class HeroController {
                     return image
                 })
                 images = await Promise.all(promises)
+            }else if (files !== undefined && files) {
+                const fileName = `${uuid.v4()}.jpg`
+                const filePath = path.resolve(__dirname, '..', "static", fileName)
+                files.mv(filePath)
+
+                const uploadResponse = await cloudinary.uploader.upload(filePath, {
+                    upload_preset: 'ml_default',
+                });
+                const image = uploadResponse.url
+                images.push(image) 
             }
             const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images })
 
