@@ -13,25 +13,12 @@ class HeroController {
             let images = []
             if (files !== undefined && files.length > 0) {
                 const promises = files.map(async (img) => {
-                    console.log(img);
-                    const fileName = `${uuid.v4()}.jpg`
-                    const filePath = path.resolve(__dirname, '..', "static", fileName)
-                    img.mv(filePath)
-
-                    const uploadResponse = await cloudinary.uploader.upload(filePath, {
-                        upload_preset: 'ml_default',
-                    });
+                    const uploadResponse = await cloudinary.uploader.text(img.name);
                     return uploadResponse.url
                 })
                 images = await Promise.all(promises)
             } else if (files !== undefined && files) {
-                const fileName = `${uuid.v4()}.jpg`
-                const filePath = path.resolve(__dirname, '..', "static", fileName)
-                files.mv(filePath)
-
-                const uploadResponse = await cloudinary.uploader.upload(filePath, {
-                    upload_preset: 'ml_default',
-                });
+                const uploadResponse = await cloudinary.uploader.text(files.name);
                 images.push(uploadResponse.url)
             }
             const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images })
@@ -75,7 +62,21 @@ class HeroController {
     async updateById(req, res, next) {
         try {
             const { id } = req.params
-            const result = await Hero.findByIdAndUpdate(id, req.body, { new: true })
+            const { nickname, realName, superpowers, catchPhrase } = req.body
+
+            const files = req.files?.img
+            const hero = await Hero.findById('62878dcced72a9ab9545e9f4')
+            let { images } = hero
+            if (files !== undefined && files.length > 0) {
+                const promises = files.map(async (img) => {
+                    const uploadResponse = await cloudinary.uploader.text(img.name);
+                    return uploadResponse.url
+                })
+                images = await (await Promise.all(promises))
+                images.filter((item, index) =>images.indexOf(item)===index)
+            } 
+
+            const result = await Hero.findByIdAndUpdate(id, { nickname, realName, superpowers, catchPhrase, images }, { new: true })
             if (!result) {
                 throw new NotFound(`Product ${id} not found`)
             }
