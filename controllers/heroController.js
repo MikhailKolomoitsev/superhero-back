@@ -1,7 +1,6 @@
-const uuid = require('uuid')
-const path = require('path')
 const { Hero } = require('../models/Hero')
 const { cloudinary } = require('../utils/cloudinary');
+
 
 class HeroController {
     async create(req, res, next) {
@@ -13,12 +12,16 @@ class HeroController {
             let images = []
             if (files !== undefined && files.length > 0) {
                 const promises = files.map(async (img) => {
-                    const uploadResponse = await cloudinary.uploader.text(img.name);
+                    const uploadResponse = await cloudinary.uploader.upload(img, {
+                        upload_preset: 'ml_default',
+                    });
                     return uploadResponse.url
                 })
                 images = await Promise.all(promises)
             } else if (files !== undefined && files) {
-                const uploadResponse = await cloudinary.uploader.text(files.name);
+                const uploadResponse = await cloudinary.uploader.upload(files, {
+                    upload_preset: 'ml_default',
+                });
                 images.push(uploadResponse.url)
             }
             const hero = await Hero.create({ nickname, realName, superpowers, catchPhrase, images })
@@ -63,26 +66,32 @@ class HeroController {
         try {
             const { id } = req.params
             const { nickname, realName, superpowers, catchPhrase } = req.body
-
             const files = req.files?.img
-            const hero = await Hero.findById('62878dcced72a9ab9545e9f4')
+            const hero = await Hero.findById(id)
             let { images } = hero
             if (files !== undefined && files.length > 0) {
                 const promises = files.map(async (img) => {
-                    const uploadResponse = await cloudinary.uploader.text(img.name);
+                    const uploadResponse = await cloudinary.uploader.upload(img, {
+                        upload_preset: 'ml_default',
+                    });
                     return uploadResponse.url
                 })
-                images = await (await Promise.all(promises))
-                images.filter((item, index) =>images.indexOf(item)===index)
-            } 
+                images = await Promise.all(promises)
+                images.filter((item, index) => images.indexOf(item) === index)
+            } else if (typeof files === 'object') {
+                const uploadResponse = await cloudinary.uploader.upload(files, {
+                    upload_preset: 'ml_default',
+                });
+                images.push(uploadResponse.url).filter((item, index) => images.indexOf(item) === index)
+            }
 
             const result = await Hero.findByIdAndUpdate(id, { nickname, realName, superpowers, catchPhrase, images }, { new: true })
             if (!result) {
                 throw new NotFound(`Product ${id} not found`)
             }
             res.json({
-                status: 'success',
-                code: 200,
+                status: 'resource updated successfully',
+                code: 204,
                 data: { result }
             })
         } catch (error) {
