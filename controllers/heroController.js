@@ -8,18 +8,21 @@ class HeroController {
             const { nickname, realName, superpowers, catchPhrase } = req.body
 
 
-            const files = req.files?.img
+            const files = req.images?.img
+            console.log(req);
             let images = []
             if (files !== undefined && files.length > 0) {
                 const promises = files.map(async (img) => {
-                    const uploadResponse = await cloudinary.uploader.upload(img, {
+                    const base64Image = img.toString('base64');
+                    const uploadResponse = await cloudinary.uploader.upload(base64Image, {
                         upload_preset: 'ml_default',
                     });
                     return uploadResponse.url
                 })
                 images = await Promise.all(promises)
             } else if (files !== undefined && files) {
-                const uploadResponse = await cloudinary.uploader.upload(files, {
+                const base64Image = files.toString('base64');
+                const uploadResponse = await cloudinary.uploader.upload(base64Image, {
                     upload_preset: 'ml_default',
                 });
                 images.push(uploadResponse.url)
