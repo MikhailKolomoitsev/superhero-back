@@ -1,7 +1,4 @@
-const path = require('path')
-const { v4: uuidv4 } = require('uuid');
 const { Hero } = require('../models/Hero')
-const { cloudinary } = require('../utils/cloudinary');
 
 
 class HeroController {
@@ -43,7 +40,7 @@ class HeroController {
             res.json({
                 status: 'success',
                 code: 200,
-                data: { result }
+                data: result 
             })
         } catch (error) {
             console.log(error.message);
